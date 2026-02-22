@@ -6,3 +6,4 @@ WTForms
 email-validator
 Werkzeug
 Pillow
+gunicorn
