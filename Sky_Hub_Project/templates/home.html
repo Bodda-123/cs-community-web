@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+{% block title %}CS Community — Feed{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Filter sidebar ── */
+  .filter-card {
+    position: sticky;
+    top: 80px;
+  }
+
+  .track-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+  }
+
+  .track-option:hover {
+    background: rgba(37, 99, 235, 0.06);
+    color: var(--accent-color);
+  }
+
+  .track-option.active-track {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .track-option .track-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    background: rgba(37, 99, 235, 0.08);
+    flex-shrink: 0;
+  }
+
+  /* ── Active filter badge ── */
+  .filter-badge {
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 50px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ── Post card ── */
+  .post-card {
+    transition: box-shadow 0.2s;
+  }
+
+  .post-card:hover {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+  }
+
+  /* ── Profile snapshot sidebar ── */
+  .profile-sidebar-header {
+    height: 56px;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #60a5fa 100%);
+    border-radius: 12px 12px 0 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <!-- ── Left: Profile Snapshot ── -->
+  <div class="col-lg-3 d-none d-lg-block">
+    <div class="card overflow-hidden shadow-sm" style="border-radius:14px;">
+      <div class="profile-sidebar-header"></div>
+      <div class="card-body text-center pt-0">
+        <div class="rounded-circle bg-white d-inline-block p-1 shadow-sm" style="margin-top:-38px;">
+          <img src="{{ profile_image_url(current_user.profile_image) }}" alt="{{ current_user.username }}"
+            onerror="this.src='{{ url_for('static', filename='uploads/profile_pics/default_profile.png') }}'"
+            style="width:72px; height:72px; object-fit:cover; border-radius:50%;">
+        </div>
+        <h5 class="fw-bold mb-0 mt-2">{{ current_user.username }}</h5>
+        <p class="text-muted small mb-0">{{ current_user.track or 'CS Student' }}</p>
+
+        <!-- status -->
+        <div class="mt-2 mb-3">
+          {% if current_user.available_for_project %}
+          <span class="badge rounded-pill px-3 py-1"
+            style="background:rgba(34,197,94,0.1); color:#16a34a; font-size:0.75rem; border:1px solid rgba(34,197,94,0.25);">
+            <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>Available
+          </span>
+          {% else %}
+          <span class="badge rounded-pill px-3 py-1"
+            style="background:rgba(234,179,8,0.1); color:#a16207; font-size:0.75rem; border:1px solid rgba(234,179,8,0.25);">
+            <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>Busy
+          </span>
+          {% endif %}
+        </div>
+        <a href="{{ url_for('me') }}" class="btn btn-sm btn-outline-primary w-100 rounded-pill fw-semibold">
+          View My Profile
+        </a>
+      </div>
+      <div class="card-footer border-0 pt-0 pb-3 px-3 text-center">
+        <a href="{{ url_for('edit_profile') }}" class="btn btn-sm btn-light w-100 rounded-pill text-muted"
+          style="font-size:0.8rem;">
+          <i class="fas fa-pen me-1"></i>Edit Profile
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Center: Feed ── -->
+  <div class="col-lg-6 col-md-8">
+
+    <!-- Start a post box -->
+    <div class="card p-3 mb-3 shadow-sm border-0" style="border-radius:12px;">
+      <div class="d-flex align-items-center gap-3">
+        <img src="{{ profile_image_url(current_user.profile_image) }}" alt="{{ current_user.username }}"
+          onerror="this.src='{{ url_for('static', filename='uploads/profile_pics/default_profile.png') }}'"
+          class="rounded-circle flex-shrink-0"
+          style="width:40px; height:40px; object-fit:cover; border:1px solid var(--border-color);">
+        <a href="{{ url_for('new_post') }}"
+          class="btn btn-light flex-grow-1 text-start rounded-pill border-1 text-muted px-4 py-2 hover-bg-gray"
+          style="font-size:0.88rem; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-muted) !important;">
+          Share something with CS Community...
+        </a>
+      </div>
+      <div class="d-flex justify-content-around mt-3 pt-2 border-top border-secondary-subtle">
+        <a href="{{ url_for('new_post') }}"
+          class="btn btn-link text-muted small text-decoration-none py-1 d-flex align-items-center gap-2">
+          <i class="fas fa-image text-success"></i><span class="d-none d-sm-inline">Photo</span>
+        </a>
+        <a href="{{ url_for('new_post') }}"
+          class="btn btn-link text-muted small text-decoration-none py-1 d-flex align-items-center gap-2">
+          <i class="fas fa-video text-warning"></i><span class="d-none d-sm-inline">Video</span>
+        </a>
+        <a href="{{ url_for('new_post') }}"
+          class="btn btn-link text-muted small text-decoration-none py-1 d-flex align-items-center gap-2">
+          <i class="fas fa-file-lines text-primary"></i><span class="d-none d-sm-inline">Article</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Active filter badge -->
+    {% if track_filter or available_filter %}
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <span class="small text-muted">Filtering by:</span>
+      {% if track_filter %}
+      <span class="filter-badge">
+        <i class="fas fa-tag"></i>{{ track_filter }}
+        <a href="{{ url_for('home', available=available_filter if available_filter else '') }}"
+          class="ms-1 text-muted text-decoration-none">&times;</a>
+      </span>
+      {% endif %}
+      {% if available_filter == 'yes' %}
+      <span class="filter-badge">
+        <i class="fas fa-circle-check"></i>Available
+        <a href="{{ url_for('home', track=track_filter if track_filter else '') }}"
+          class="ms-1 text-muted text-decoration-none">&times;</a>
+      </span>
+      {% endif %}
+      <a href="{{ url_for('home') }}"
+        class="btn btn-link btn-sm text-danger text-decoration-none py-0 ms-auto fw-semibold"
+        style="font-size: 0.75rem;">
+        Clear All
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Posts -->
+    {% for post in posts %}
+    <div class="card mb-3 post-card shadow-sm border-0" style="border-radius:12px; padding: 1.25rem;">
+      <!-- Author row -->
+      <div class="d-flex align-items-start mb-3">
+        <img src="{{ profile_image_url(post.author.profile_image) }}" alt="{{ post.author.username }}"
+          onerror="this.src='{{ url_for('static', filename='uploads/profile_pics/default_profile.png') }}'"
+          class="rounded-circle me-3 flex-shrink-0"
+          style="width:48px; height:48px; object-fit:cover; border:1px solid var(--border-color);">
+        <div class="flex-grow-1 min-width-0">
+          <h6 class="mb-0 fw-bold">
+            <a href="{{ url_for('profile', user_id=post.author.id) }}" class="text-decoration-none"
+              style="color:var(--text-main); font-size: 0.95rem;">
+              {{ post.author.username }}
+            </a>
+            {% if post.author.available_for_project %}
+            <span class="ms-1 badge rounded-pill" style="background:rgba(34,197,94,0.1); color:#16a34a;
+                         border:1px solid rgba(34,197,94,0.2); font-size:0.6rem; vertical-align: middle;">
+              Open
+            </span>
+            {% endif %}
+          </h6>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">
+            {{ post.author.track or 'CS Member' }}
+          </p>
+          <p class="text-muted mb-0" style="font-size:0.68rem; opacity: 0.8;">
+            {{ post.date.strftime('%b %d, %Y') }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Content — removed title to prevent duplication with auto-generated title -->
+      {% if post.content %}
+      <p class="mb-3" style="font-size:0.92rem; line-height:1.6; color:var(--text-main); white-space: pre-wrap;">{{
+        post.content | truncate(500) }}</p>
+      {% endif %}
+
+      {% if post.image_file %}
+      <div class="rounded-3 overflow-hidden mb-3"
+        style="border:1px solid var(--border-color); margin: 0 -1.25rem 1.25rem;">
+        <img src="{{ url_for('static', filename='uploads/' + post.image_file) }}" class="img-fluid w-100"
+          alt="Post image" style="max-height:500px; object-fit:cover;">
+      </div>
+      {% endif %}
+
+      <!-- Like / Comment bar -->
+      <div class="border-top pt-2 mt-1 d-flex justify-content-around">
+        <a href="{{ url_for('post_detail', post_id=post.id) }}"
+          class="btn btn-link text-muted text-decoration-none py-2 px-3 hover-bg-light rounded-2"
+          style="font-size:0.85rem; flex: 1; text-align: center;">
+          <i class="far fa-thumbs-up me-2"></i>
+          Like{% if post.likes_count %}<mark class="bg-transparent p-0 ms-1 fw-bold"
+            style="color: var(--accent-color);">{{ post.likes_count }}</mark>{% endif %}
+        </a>
+        <a href="{{ url_for('post_detail', post_id=post.id) }}"
+          class="btn btn-link text-muted text-decoration-none py-2 px-3 hover-bg-light rounded-2"
+          style="font-size:0.85rem; flex: 1; text-align: center;">
+          <i class="far fa-comment-dots me-2"></i>Comment
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <!-- Empty state -->
+    <div class="card text-center p-5 shadow-sm">
+      <i class="fas fa-satellite-dish text-muted mb-3" style="font-size:3rem; opacity:0.3;"></i>
+      <h5 class="fw-bold text-muted">No posts found</h5>
+      <p class="text-muted small mb-3">
+        {% if track_filter or available_filter %}
+        No posts match your current filters. Try adjusting or clearing them.
+        {% else %}
+        Be the first to post something in CS Community!
+        {% endif %}
+      </p>
+      {% if track_filter or available_filter %}
+      <a href="{{ url_for('home') }}" class="btn btn-outline-primary btn-sm rounded-pill">
+        Clear Filters
+      </a>
+      {% else %}
+      <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-sm rounded-pill px-4">
+        Create First Post
+      </a>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- ── Right: Filters ── -->
+  <div class="col-lg-3 col-md-4">
+    <div class="card p-3 shadow-sm filter-card">
+      <h6 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <i class="fas fa-sliders" style="color:var(--accent-color);"></i>
+        Network Filters
+      </h6>
+      <p class="text-muted mb-3" style="font-size:0.75rem;">Filter the feed by student track or availability</p>
+
+      <!-- Track filter — use links (GET-based, no form submit needed) -->
+      <p class="small fw-semibold text-muted mb-2 text-uppercase" style="font-size:0.7rem; letter-spacing:.05em;">By
+        Track</p>
+
+      {% set tracks = [
+      ('Web Development', 'fa-globe', '#2563eb'),
+      ('Mobile App', 'fa-mobile-screen', '#7c3aed'),
+      ('Data Science', 'fa-chart-bar', '#0891b2'),
+      ('AI & Machine Learning', 'fa-brain', '#d97706'),
+      ('Cybersecurity', 'fa-shield-halved', '#dc2626'),
+      ('Game Development', 'fa-gamepad', '#16a34a'),
+      ('Embedded Systems', 'fa-microchip', '#78716c'),
+      ('Other', 'fa-ellipsis', '#6b7280'),
+      ] %}
+
+      {% for track_name, icon, color in tracks %}
+      <a href="{{ url_for('home', track=track_name, available=available_filter if available_filter else '') }}"
+        class="track-option {{ 'active-track' if track_filter == track_name }}"
+        style="{% if track_filter == track_name %}color:{{ color }};{% endif %}">
+        <span class="track-icon"
+          style="{% if track_filter == track_name %}background:{{ color }}15; color:{{ color }};{% endif %}">
+          <i class="fas {{ icon }}"></i>
+        </span>
+        {{ track_name }}
+        {% if track_filter == track_name %}
+        <i class="fas fa-check ms-auto" style="font-size:0.7rem;"></i>
+        {% endif %}
+      </a>
+      {% endfor %}
+
+      <hr class="my-3 opacity-25">
+
+      <!-- Available toggle -->
+      <p class="small fw-semibold text-muted mb-2 text-uppercase" style="font-size:0.7rem; letter-spacing:.05em;">
+        Availability</p>
+      <a href="{{ url_for('home', track=track_filter if track_filter else '', available='yes' if available_filter != 'yes' else '') }}"
+        class="track-option {{ 'active-track' if available_filter == 'yes' }}" {% if available_filter=='yes'
+        %}style="color:#16a34a;" {% endif %}>
+        <span class="track-icon"
+          style="{% if available_filter == 'yes' %}background:rgba(34,197,94,0.12); color:#16a34a;{% endif %}">
+          <i class="fas fa-circle-check"></i>
+        </span>
+        Available for Project
+        {% if available_filter == 'yes' %}
+        <i class="fas fa-check ms-auto" style="font-size:0.7rem;"></i>
+        {% endif %}
+      </a>
+
+      <!-- Clear all -->
+      {% if track_filter or available_filter %}
+      <div class="mt-3">
+        <a href="{{ url_for('home') }}" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-semibold">
+          <i class="fas fa-xmark me-1"></i>Clear All Filters
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Quick links card -->
+    <div class="card p-3 shadow-sm mt-3">
+      <h6 class="fw-bold mb-3" style="font-size:0.85rem;">Quick Links</h6>
+      <a href="{{ url_for('new_post') }}" class="track-option mb-1">
+        <span class="track-icon"><i class="fas fa-pen"></i></span>New Post
+      </a>
+      <a href="{{ url_for('me') }}" class="track-option mb-1">
+        <span class="track-icon"><i class="fas fa-user"></i></span>My Profile
+      </a>
+      <a href="{{ url_for('edit_profile') }}" class="track-option">
+        <span class="track-icon"><i class="fas fa-gear"></i></span>Edit Profile
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

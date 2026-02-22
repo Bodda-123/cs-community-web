@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile — CS Community{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0" style="border-radius:16px;">
+            <div class="card-header py-3 border-bottom"
+                style="background-color: var(--card-bg) !important; border-color: var(--border-color) !important; border-radius:16px 16px 0 0;">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-user-pen me-2" style="color:var(--accent-color);"></i>
+                    Update Your CS Community Profile
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="text-center mb-4">
+                        <img src="{{ profile_image_url(current_user.profile_image) }}" alt="{{ current_user.username }}"
+                            onerror="this.src='{{ url_for('static', filename='uploads/profile_pics/default_profile.png') }}'"
+                            class="rounded-circle shadow-sm mb-3"
+                            style="width: 100px; height: 100px; object-fit: cover; border: 3px solid var(--accent-color);">
+                        <div class="mt-2 mx-auto" style="max-width: 300px;">
+                            {{ form.profile_image(class="form-control form-control-sm") }}
+                            <div class="form-text">JPG or PNG only, max 5 MB</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Username</label>
+                            {{ form.username(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            {{ form.email(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Primary Track</label>
+                            {{ form.track(class="form-select") }}
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center mt-auto">
+                            <div class="form-check form-switch pt-2">
+                                {{ form.available_for_project(class="form-check-input") }}
+                                <label class="form-check-label small fw-bold">Available for Project Teams</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold">Core Skills (separated by commas)</label>
+                        {{ form.skills(class="form-control", placeholder="e.g. Flask, DevOps, UI Design") }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold">Resume (PDF Only)</label>
+                        {{ form.cv_file(class="form-control") }}
+                        {% if current_user.cv_file %}
+                        <small class="text-success d-block mt-1">Current Resume is uploaded.</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">GitHub Portfolio URL</label>
+                            {{ form.github_link(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">LinkedIn Profile URL</label>
+                            {{ form.linkedin_link(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Portfolio Website</label>
+                            {{ form.portfolio_link(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">WhatsApp / Contact</label>
+                            {{ form.phone_number(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-4">
+                        {{ form.submit(class="btn btn-primary w-100 rounded-pill py-2 fw-bold") }}
+                        <a href="{{ url_for('me') }}"
+                            class="btn btn-link text-muted w-100 mt-2 text-decoration-none">Back to Profile</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

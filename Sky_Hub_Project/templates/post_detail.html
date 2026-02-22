@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Post Section -->
+      <article class="card mb-4 shadow-sm border-0"
+        style="border-radius:16px; overflow: hidden; background: var(--card-bg);">
+        <div class="card-body p-4 p-md-5">
+          <!-- Author Info -->
+          <div class="d-flex align-items-center mb-4">
+            <img src="{{ profile_image_url(post.author.profile_image) }}" alt="{{ post.author.username }}"
+              class="rounded-circle me-3"
+              style="width: 52px; height: 52px; object-fit: cover; border: 1px solid var(--border-color);">
+            <div class="flex-grow-1">
+              <h5 class="mb-0 fw-bold">
+                <a href="{{ url_for('profile', user_id=post.author.id) }}" class="text-decoration-none"
+                  style="color: var(--text-main);">
+                  {{ post.author.username }}
+                </a>
+              </h5>
+              <p class="text-muted small mb-0">
+                {{ post.author.track or 'CS Community Member' }} · {{ post.date.strftime('%b %d, %Y') }}
+              </p>
+            </div>
+            {% if post.author.available_for_project %}
+            <span class="badge rounded-pill"
+              style="background:rgba(34,197,94,0.1); color:#16a34a; border:1px solid rgba(34,197,94,0.2);">
+              Open for Project
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Post Title (Hidden if redundant) -->
+          {% set clean_title = post.title|replace('…', '') %}
+          {% if post.title and not post.content.startswith(clean_title) %}
+          <h2 class="fw-bold mb-3" style="color: var(--text-main); font-size: 1.5rem;">{{ post.title }}</h2>
+          {% endif %}
+
+          <div class="post-content mb-4"
+            style="color: var(--text-main); font-size: 1.05rem; line-height: 1.7; white-space: pre-wrap;">{{
+            post.content }}</div>
+
+          {% if post.image_file %}
+          <div class="mb-4 rounded-3 overflow-hidden border" style="border-color: var(--border-color) !important;">
+            <img src="{{ url_for('static', filename='uploads/' ~ post.image_file) }}" alt="Post image"
+              class="img-fluid w-100">
+          </div>
+          {% endif %}
+
+          {% if post.video_file %}
+          <div class="ratio ratio-16x9 mb-4 rounded-3 overflow-hidden border">
+            <video controls class="w-100">
+              <source src="{{ url_for('static', filename='uploads/' ~ post.video_file) }}" type="video/mp4">
+            </video>
+          </div>
+          {% endif %}
+
+          <!-- Post actions -->
+          {% if current_user.is_authenticated and current_user.id == post.user_id %}
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}">
+              {{ delete_form.hidden_tag() }}
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Delete this post? This cannot be undone.');">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </article>
+
+      <!-- Like & Share -->
+      <div class="mb-4">
+        {% if current_user.is_authenticated %}
+        <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" class="d-inline">
+          {{ like_form.hidden_tag() }}
+          <button type="submit" class="btn {% if liked %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="fas fa-thumbs-up"></i> {{ post.likes_count or 0 }} Likes
+          </button>
+        </form>
+        {% else %}
+        <button class="btn btn-outline-primary" disabled>
+          <i class="fas fa-thumbs-up"></i> {{ post.likes_count or 0 }} Likes
+        </button>
+        <small class="ms-2 text-muted"><a href="{{ url_for('login') }}">Log in</a> to like.</small>
+        {% endif %}
+      </div>
+
+      <!-- Comments Section -->
+      <section class="mb-5">
+        <h3 class="mb-4">Comments ({{ comments|length }})</h3>
+
+        {% if comments %}
+        {% for c in comments %}
+        <div class="card mb-3 border-0 shadow-sm bg-light">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <strong class="d-block">
+                  <a href="{{ url_for('profile', user_id=c.author.id) }}" class="text-decoration-none text-dark">{{
+                    c.author.username }}</a>
+                  {% if c.author.track %}
+                  <span class="badge bg-secondary ms-1" style="font-size: 0.7em;">{{ c.author.track }}</span>
+                  {% endif %}
+                </strong>
+                <small class="text-muted">{{ c.date.strftime('%Y-%m-%d %H:%M') }}</small>
+              </div>
+              {% if current_user.is_authenticated and current_user.id == c.user_id %}
+              <div class="dropdown">
+                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{{ url_for('edit_comment', comment_id=c.id) }}">Edit</a></li>
+                  <li>
+                    <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" class="d-inline">
+                      {{ comment_delete_form.hidden_tag() }}
+                      <button type="submit" class="dropdown-item text-danger"
+                        onclick="return confirm('Delete this comment?');">Delete</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+            <p class="mt-2 mb-0">{{ c.content }}</p>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="text-muted fst-italic mb-3">No comments yet. Start the conversation!</div>
+        {% endif %}
+
+        <!-- Add Comment Form -->
+        {% if current_user.is_authenticated %}
+        <div class="card mt-4 border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Leave a comment</h5>
+            <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+              {{ form.hidden_tag() }}
+              <div class="mb-3">
+                {{ form.content(class="form-control", rows="3", placeholder="Share your thoughts...") }}
+                {% for error in form.content.errors %}
+                <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary px-4">Post Comment</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+    {% endblock %}

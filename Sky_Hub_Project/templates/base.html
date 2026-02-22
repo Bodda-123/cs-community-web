@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CS Community — Academic Network{% endblock %}</title>
+  <meta name="description"
+    content="CS Community: Connect with fellow CS students, showcase your skills, and find your graduation project team.">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --text-main: #0d1117;
+      --text-muted: #6e7681;
+      --nav-bg: #ffffff;
+      --accent-color: #2563eb;
+      /* CSC Blue */
+      --accent-hover: #1d4ed8;
+      --border-color: #dde1e7;
+      --success-bg: #dcfce7;
+      --badge-track: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --nav-bg: #161b22;
+      --border-color: #30363d;
+      --badge-track: #1f2937;
+    }
+
+    /* ── Base ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text-main);
+      transition: background-color 0.25s, color 0.25s;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background-color: var(--nav-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.25rem 0;
+      transition: background-color 0.25s;
+    }
+
+    /* CSC Logo — text-based */
+    .csc-brand {
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .csc-logo-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--accent-color);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      flex-shrink: 0;
+    }
+
+    .csc-brand .brand-cs {
+      color: var(--accent-color);
+    }
+
+    .csc-brand .brand-c {
+      color: var(--text-main);
+    }
+
+    /* ── Nav Links ── */
+    .nav-link {
+      color: var(--text-muted) !important;
+      font-weight: 500;
+      font-size: 0.82rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem 0.9rem !important;
+      transition: color 0.15s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main) !important;
+    }
+
+    .nav-link.active {
+      color: var(--accent-color) !important;
+      border-bottom: 2px solid var(--accent-color);
+    }
+
+    .nav-link i {
+      font-size: 1.1rem;
+      margin-bottom: 2px;
+    }
+
+    /* ── Profile image in Navbar ── */
+    .profile-img-nav {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--border-color);
+      margin-bottom: 2px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      margin-bottom: 1rem;
+      transition: background-color 0.25s, border-color 0.25s;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background-color: var(--accent-color);
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* ── Theme Toggle ── */
+    .theme-toggle {
+      cursor: pointer;
+      padding: 7px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      color: var(--text-muted);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .theme-toggle:hover {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent-color);
+    }
+
+    /* ── Flash Alerts ── */
+    .flash-container {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 9999;
+      width: 320px;
+    }
+
+    .flash-container .alert {
+      border-radius: 10px;
+      font-size: 0.875rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ── Page wrapper ── */
+    .page-wrapper {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* ── Text helpers ── */
+    .text-muted {
+      color: var(--text-muted) !important;
+    }
+
+    .text-accent {
+      color: var(--accent-color) !important;
+    }
+
+    /* ── Misc ── */
+    a {
+      transition: color 0.15s;
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container-xl px-3">
+
+      <!-- Brand / Logo -->
+      <a class="csc-brand" href="{{ url_for('landing') }}">
+        <span class="csc-logo-icon">CS</span>
+        <span class="brand-cs">CS</span><span class="brand-c">Community</span>
+      </a>
+
+      <!-- Mobile: theme toggle -->
+      <div class="d-flex align-items-center gap-2 d-lg-none ms-auto me-2">
+        <div class="theme-toggle" id="theme-toggle-mobile"><i class="fas fa-moon"></i></div>
+      </div>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if current_user.is_authenticated %}
+
+          <li class="nav-item">
+            <a class="nav-link {{ 'active' if request.endpoint == 'home' }}" href="{{ url_for('home') }}">
+              <i class="fas fa-house"></i>Home
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {{ 'active' if request.endpoint == 'network' }}" href="{{ url_for('network') }}">
+              <i class="fas fa-users"></i>Network
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {{ 'active' if request.endpoint in ['profile','me'] }}" href="{{ url_for('me') }}">
+              <img src="{{ profile_image_url(current_user.profile_image) }}" class="profile-img-nav"
+                alt="{{ current_user.username }}"
+                onerror="this.src='{{ url_for('static', filename='uploads/profile_pics/default_profile.png') }}'">
+              Me
+            </a>
+          </li>
+
+
+          <li class="nav-item">
+            <a class="nav-link {{ 'active' if request.endpoint == 'new_post' }}" href="{{ url_for('new_post') }}">
+              <i class="fas fa-pen-to-square"></i>Post
+            </a>
+          </li>
+
+          <!-- Desktop theme toggle -->
+          <li class="nav-item d-none d-lg-block mx-1">
+            <div class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></div>
+          </li>
+
+          <li class="nav-item border-start ps-2 ms-1">
+            <a class="nav-link text-danger fw-semibold" href="{{ url_for('logout') }}">
+              <i class="fas fa-right-from-bracket"></i>Logout
+            </a>
+          </li>
+
+          {% else %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Sign In</a>
+          </li>
+          <li class="nav-item ms-2">
+            <a class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-semibold" href="{{ url_for('register') }}">Join
+              CSC</a>
+          </li>
+          <!-- Guest theme toggle -->
+          <li class="nav-item d-none d-lg-block ms-2">
+            <div class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></div>
+          </li>
+
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Toast Flash Messages ── -->
+  <div class="flash-container" id="flashContainer">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+      role="alert">
+      <i class="fas
+            {% if category == 'success' %}fa-circle-check
+            {% elif category == 'danger' or category == 'error' %}fa-circle-xmark
+            {% elif category == 'warning' %}fa-triangle-exclamation
+            {% else %}fa-circle-info{% endif %} me-2"></i>
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endwith %}
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="page-wrapper">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ── Dark / Light Theme Toggle ──
+    const html = document.documentElement;
+
+    const setTheme = (theme) => {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('csc-theme', theme);
+      const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
+      document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.innerHTML = `<i class="fas ${icon}"></i>`;
+      });
+    };
+
+    // Restore saved theme
+    setTheme(localStorage.getItem('csc-theme') || 'light');
+
+    document.querySelectorAll('.theme-toggle').forEach(btn =>
+      btn.addEventListener('click', () => {
+        setTheme(html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+      })
+    );
+
+    // Auto-dismiss alerts after 5 s
+    setTimeout(() => {
+      document.querySelectorAll('#flashContainer .alert').forEach(el => {
+        const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+        bsAlert.close();
+      });
+    }, 5000);
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

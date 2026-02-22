@@ -1,0 +1,416 @@
+{% extends "base.html" %}
+{% block title %}Create Post — CS Community{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Page centering ── */
+  .post-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1.5rem 0;
+  }
+
+  /* ── The card ── */
+  .create-card {
+    width: 100%;
+    max-width: 660px;
+    background: #111827;
+    /* dark-900 */
+    border: 1px solid #1f2937;
+    /* dark-800 border */
+    border-radius: 20px;
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+
+  /* ── Top bar ── */
+  .create-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid #1f2937;
+    background: #0d1117;
+  }
+
+  .create-topbar img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #2563eb;
+    flex-shrink: 0;
+  }
+
+  .topbar-meta .name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #f3f4f6;
+    line-height: 1.2;
+  }
+
+  .topbar-meta .sub {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .topbar-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+  }
+
+  .topbar-close:hover {
+    background: #1f2937;
+    color: #d1d5db;
+  }
+
+  /* ── Textarea ── */
+  .create-body {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .post-textarea {
+    width: 100%;
+    min-height: 160px;
+    background: transparent;
+    border: none;
+    resize: none;
+    color: #f9fafb;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.7;
+    outline: none;
+    padding: 0;
+  }
+
+  .post-textarea::placeholder {
+    color: #374151;
+  }
+
+  .post-error {
+    color: #f87171;
+    font-size: 0.78rem;
+    margin-top: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(239, 68, 68, 0.08);
+    border-radius: 8px;
+    border-left: 3px solid #ef4444;
+    display: block;
+  }
+
+  /* ── Char counter ── */
+  .char-counter {
+    text-align: right;
+    font-size: 0.72rem;
+    color: #374151;
+    margin-top: 4px;
+    transition: color 0.2s;
+  }
+
+  .char-counter.near-limit {
+    color: #f59e0b;
+  }
+
+  .char-counter.at-limit {
+    color: #ef4444;
+  }
+
+  /* ── Media preview strip ── */
+  .media-preview {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 0 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .media-preview-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #1f2937;
+    background: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    color: #9ca3af;
+    max-width: 200px;
+  }
+
+  .media-preview-item i {
+    font-size: 1rem;
+  }
+
+  .media-preview-item .fname {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+  }
+
+  /* ── Bottom toolbar ── */
+  .create-footer {
+    padding: 0.85rem 1.5rem;
+    border-top: 1px solid #1f2937;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .media-tools {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .tool-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #6b7280;
+    font-size: 1.05rem;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .tool-btn:hover {
+    background: #1f2937;
+    color: #e5e7eb;
+  }
+
+  .tool-btn .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: none;
+    /* hidden on small, shown on md+ */
+  }
+
+  @media (min-width: 480px) {
+    .tool-btn .label {
+      display: inline;
+    }
+  }
+
+  .tool-btn.photo:hover {
+    color: #34d399;
+  }
+
+  .tool-btn.video:hover {
+    color: #f59e0b;
+  }
+
+  /* ── Publish button ── */
+  .btn-publish {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 9px 28px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .btn-publish:hover:not(:disabled) {
+    background: #1d4ed8;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .btn-publish:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+
+    .create-topbar,
+    .create-body,
+    .create-footer {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .media-preview {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .btn-publish {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .create-footer {
+      flex-wrap: nowrap;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="post-page">
+  <div class="create-card">
+
+    <!-- ── Top bar: avatar + name + close ── -->
+    <div class="create-topbar">
+      <img src="{{ profile_image_url(current_user.profile_image) }}" alt="{{ current_user.username }}"
+        onerror="this.src='{{ url_for('static', filename='uploads/profile_pics/default_profile.png') }}'">
+      <div class="topbar-meta">
+        <div class="name">{{ current_user.username }}</div>
+        <div class="sub">{{ current_user.track or 'CS Community Member' }}</div>
+      </div>
+      <a href="{{ url_for('home') }}" class="topbar-close" title="Cancel">
+        <i class="fas fa-xmark"></i>
+      </a>
+    </div>
+
+    <!-- ── Form ── -->
+    <form method="POST" enctype="multipart/form-data" novalidate id="postForm">
+      {{ form.hidden_tag() }}
+      <!-- Hidden title field — auto-populated from content on submit -->
+      {{ form.title(class="d-none", id="hiddenTitle") }}
+
+      <!-- ── Content textarea ── -->
+      <div class="create-body">
+        {{ form.content(
+        class="post-textarea",
+        id="postContent",
+        placeholder="What's on your mind? Share an update, ask a question, or connect with peers…",
+        maxlength=2000
+        ) }}
+        {% for e in form.content.errors %}
+        <span class="post-error"><i class="fas fa-exclamation-circle me-1"></i>{{ e }}</span>
+        {% endfor %}
+        <div class="char-counter" id="charCounter">0 / 2000</div>
+      </div>
+
+      <!-- ── Media preview ── -->
+      <div class="media-preview" id="mediaPreview"></div>
+
+      <!-- Hidden file inputs -->
+      {{ form.image(class="d-none", id="photoUpload", accept="image/jpeg,image/png,image/gif") }}
+      {{ form.video(class="d-none", id="videoUpload", accept="video/mp4,video/webm,video/ogg") }}
+
+      {% for e in form.image.errors %}
+      <div style="padding:0 1.5rem;">
+        <span class="post-error">{{ e }}</span>
+      </div>
+      {% endfor %}
+      {% for e in form.video.errors %}
+      <div style="padding:0 1.5rem;">
+        <span class="post-error">{{ e }}</span>
+      </div>
+      {% endfor %}
+
+      <!-- ── Footer: tools + publish ── -->
+      <div class="create-footer">
+        <div class="media-tools">
+          <!-- Photo button -->
+          <button type="button" class="tool-btn photo" onclick="document.getElementById('photoUpload').click()"
+            title="Attach a photo">
+            <i class="fas fa-image"></i>
+            <span class="label">Photo</span>
+          </button>
+          <!-- Video button -->
+          <button type="button" class="tool-btn video" onclick="document.getElementById('videoUpload').click()"
+            title="Attach a video">
+            <i class="fas fa-video"></i>
+            <span class="label">Video</span>
+          </button>
+        </div>
+
+        <button type="submit" class="btn-publish" id="publishBtn" disabled>
+          <i class="fas fa-paper-plane"></i> Publish
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const textarea = document.getElementById('postContent');
+  const counter = document.getElementById('charCounter');
+  const publishBtn = document.getElementById('publishBtn');
+  const hiddenTitle = document.getElementById('hiddenTitle');
+  const preview = document.getElementById('mediaPreview');
+  const MAX = 2000;
+
+  /* ── Char counter + publish enable ── */
+  textarea.addEventListener('input', () => {
+    const len = textarea.value.length;
+    counter.textContent = `${len} / ${MAX}`;
+    counter.className = 'char-counter'
+      + (len > MAX * 0.9 ? ' near-limit' : '')
+      + (len >= MAX ? ' at-limit' : '');
+    publishBtn.disabled = len === 0;
+  });
+
+  /* ── Auto-populate hidden title before submit ── */
+  document.getElementById('postForm').addEventListener('submit', () => {
+    const content = textarea.value.trim();
+    if (!hiddenTitle.value.trim() && content) {
+      hiddenTitle.value = content.length > 80
+        ? content.slice(0, 80) + '…'
+        : content;
+    }
+  });
+
+  /* ── File preview helper ── */
+  function addPreview(file, icon, color) {
+    const existing = preview.querySelector(`[data-name="${CSS.escape(file.name)}"]`);
+    if (existing) return;
+
+    const item = document.createElement('div');
+    item.className = 'media-preview-item';
+    item.dataset.name = file.name;
+    item.innerHTML = `
+      <i class="fas ${icon}" style="color:${color};"></i>
+      <span class="fname" title="${file.name}">${file.name}</span>
+    `;
+    preview.appendChild(item);
+  }
+
+  document.getElementById('photoUpload').addEventListener('change', function () {
+    Array.from(this.files).forEach(f => addPreview(f, 'fa-image', '#34d399'));
+    if (textarea.value.length === 0) publishBtn.disabled = false; // allow image-only post
+  });
+
+  document.getElementById('videoUpload').addEventListener('change', function () {
+    Array.from(this.files).forEach(f => addPreview(f, 'fa-video', '#f59e0b'));
+    if (textarea.value.length === 0) publishBtn.disabled = false;
+  });
+
+  /* ── Auto-resize textarea ── */
+  textarea.addEventListener('input', () => {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  });
+</script>
+{% endblock %}

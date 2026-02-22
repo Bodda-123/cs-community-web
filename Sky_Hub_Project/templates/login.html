@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Sign In — CS Community{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:85vh;">
+  <div class="col-md-4" style="max-width:400px;">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:56px; height:56px; border-radius:14px;
+                  background:var(--accent-color); color:#fff;
+                  font-size:1.4rem; font-weight:900; letter-spacing:-1px;">
+        CS
+      </div>
+      <h1 class="fw-bold mb-1" style="font-size:1.6rem;">Welcome back</h1>
+      <p class="text-muted" style="font-size:0.9rem;">Sign in to your CS Community account</p>
+    </div>
+
+    <div class="card shadow-sm p-4" style="border-radius:16px;">
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          {{ form.email.label(class="form-label fw-semibold small") }}
+          {{ form.email(class="form-control rounded-3", placeholder="your@email.com") }}
+          {% for e in form.email.errors %}
+          <div class="text-danger small mt-1">{{ e }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-4">
+          {{ form.password.label(class="form-label fw-semibold small") }}
+          {{ form.password(class="form-control rounded-3", placeholder="Your password") }}
+          {% for e in form.password.errors %}
+          <div class="text-danger small mt-1">{{ e }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="d-grid mb-3">
+          {{ form.submit(class="btn btn-primary btn-lg rounded-pill fw-bold py-2 shadow-sm") }}
+        </div>
+
+        <p class="text-center text-muted mb-0" style="font-size:0.85rem;">
+          New to CS Community?
+          <a href="{{ url_for('register') }}" class="text-decoration-none fw-semibold">
+            Create an account
+          </a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
