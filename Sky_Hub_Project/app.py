@@ -25,7 +25,8 @@ app = Flask(__name__)
 app.config.from_object(DevConfig)
 
 # Upload root
-UPLOAD_FOLDER = os.path.join("static", "uploads")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 CV_FOLDER = os.path.join(UPLOAD_FOLDER, "cv")
 PICTURE_FOLDER = os.path.join(UPLOAD_FOLDER, "profile_pics")
 
