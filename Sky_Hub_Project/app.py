@@ -15,14 +15,19 @@ from forms import (
     LikeForm, DeleteForm, EditProfileForm
 )
 from models import db, User, Post, Comment, Like
-from config import DevConfig
+import config
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  App Factory / Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
 app = Flask(__name__)
-app.config.from_object(DevConfig)
+
+# Use ProdConfig if on Railway/Production, else DevConfig
+if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("FLASK_ENV") == "production":
+    app.config.from_object(config.ProdConfig)
+else:
+    app.config.from_object(config.DevConfig)
 
 # Upload root
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
